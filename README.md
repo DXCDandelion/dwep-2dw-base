@@ -47,7 +47,7 @@ Requirements will be in the form of GitHub Issues labelled as `enhancement`
 Bug reports will be in the form of GitHub Issues labelled as `bug`
 
 ## Test Cases
-Test cases will be stored in the GitHub repository. They will use Markdown and use the following format:
+Test cases will be stored in the GitHub repository under the `test` folder. They will use Markdown and use the following format:
 
 Step | Description | Expected Result | Actual Result | Pass/Fail | Issue
 ---- | ----------- | --------------- | ------------- | --------- | -----
