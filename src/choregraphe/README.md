@@ -1,6 +1,6 @@
 # The Airport Application
 
-## All choregraphe code should be placed in the Airport directory
+## All choregraphe code should be placed in the **Airport** directory
 
 ## To use the Airport Library
 
