@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="8" localization="8" tooltip="Purchase a ticket." x="602" y="158">
+        <bitmap>media/images/box/interaction/text_read.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  user_data, destination
+# OUT: ticket_data
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.user_data = ''
+        self.destination = ''
+        self.ticketNaoMarkId = -1
+        self.gotUserData = False
+        self.gotDestination = False
+        self.gotTicketNaoMarkId = False
+
+    def onLoad(self):
+        #put initialization code here
+        import os
+        import sys
+        behaviorPath = self.session().service("ALFrameManager").getBehaviorPath(self.behaviorId)
+        self.path = os.path.join(behaviorPath, '../lib')
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+
+    def onUnload(self):
+        #put clean-up code here
+        if self.path in sys.path:
+            sys.path.remove(self.path)
+
+    def onInput_user_data(self, user_json):
+        import json
+        self.user_data = json.loads(user_json)
+        self.gotUserData = True
+        self.purchase_ticket()
+
+    def onInput_destination(self, destination):
+        self.destination = destination
+        self.gotDestination = True
+        self.purchase_ticket()
+
+    def onInput_ticketNaoMarkId(self, ticketNaoMarkId):
+        self.ticketNaoMarkId = ticketNaoMarkId
+        self.gotTicketNaoMarkId = True
+        self.purchase_ticket()
+
+    def purchase_ticket(self):
+        from tinydb import TinyDB, Query
+        import json
+        db = TinyDB(self.getParameter('Database Path'))
+        users = db.table('users')
+        flights = db.table('flights')
+        tickets = db.table('tickets')
+        if self.gotUserData and self.gotDestination and self.gotTicketNaoMarkId:
+            try:
+                self.is_credit_card_declined()
+                user_id = self.user_data['nao_mark_id']
+                User = Query()
+                user = users.get(User.nao_mark_id == int(user_id))
+                Flight = Query()
+                flight_data = flights.get(Flight.destination == self.destination)
+                if flight_data is None:
+                    self.onError('Destination %s not found.' % self.destination)
+                ticket_data = {
+                    'user_id': int(user_id),
+                    'flight_id': flight_data.doc_id,
+                    'nao_mark_id': self.ticketNaoMarkId,
+                    'destination': self.destination,
+                    'price': flight_data['ticket_price'] #+10.95
+                }
+                ticket_id = tickets.insert(ticket_data)
+                user['tickets'].append(self.ticketNaoMarkId)
+                users.update(user, User.nao_mark_id == int(user_id))
+                self.gotUserData = False
+                self.gotDestination = False
+                self.gotTicketNaoMarkId = False
+                self.onPurchase(json.dumps(ticket_data)) #activate the output of the box
+            except Exception as e:
+                self.deallocateNaoMark(db, self.ticketNaoMarkId)
+                self.onError('Ticket purchase failed. %s' % e)
+
+    def is_credit_card_declined(self):
+        import random
+        n = random.randint(1,5)
+        if n == 5:
+            self.cc_declined()
+            raise(Exception('Credit card was declined'))
+
+    def deallocateNaoMark(self, db, naoMarkId):
+        from tinydb import Query
+        nao_marks = db.table('nao_marks')
+        NaoMark = Query()
+        nao_mark = nao_marks.get(NaoMark.id == naoMarkId)
+        nao_mark['allocated'] = False
+        nao_marks.update(nao_mark, NaoMark.id == nao_mark['id'])]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="user_data" type="3" type_size="1" nature="1" inner="0" tooltip="The user data as a JSON string of who is purchasing the ticket." id="2" />
+        <Input name="destination" type="3" type_size="1" nature="1" inner="0" tooltip="The name of the destination of the ticket purchase." id="3" />
+        <Input name="ticketNaoMarkId" type="2" type_size="1" nature="1" inner="0" tooltip="The ID of the next available nao mark for tickets.&#x0A;&#x0A;* USE Get Next Nao Mark box *" id="4" />
+        <Output name="onPurchase" type="3" type_size="1" nature="2" inner="0" tooltip="The ticket data as a JSON string upon successful ticket purchase." id="5" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="If ticket purchase fails" id="6" />
+        <Output name="cc_declined" type="1" type_size="1" nature="2" inner="0" tooltip="The user&apos;s credit card was declined" id="7" />
+        <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="8" />
+    </Box>
+</ChoregrapheBox>

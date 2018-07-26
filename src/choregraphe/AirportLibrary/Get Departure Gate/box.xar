@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="10" localization="8" tooltip="Get the departure gate for the flight going to the given destination." x="786" y="10">
+        <bitmap>media/images/box/movement/walk_forward.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  flight_data, destination
+# OUT: departure_gate
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.flight_data = ''
+        self.destination = ''
+        self.gotFlightData = False
+        self.gotDestination = False
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_flight_data(self, flight_json):
+        import json
+        self.flight_data = json.loads(flight_json)
+        self.gotFlightData = True
+        self.get_departure_gate()
+
+    def onInput_destination(self, destination):
+        self.destination = destination
+        self.gotDestination = True
+        self.get_departure_gate()
+
+    def get_departure_gate(self):
+        if self.gotFlightData and self.gotDestination:
+            destination_data = [x for x in self.flight_data if x['destination'] == self.destination]
+            if not destination_data:
+                self.not_found('Destination %s could not be found' % self.destination)
+            else:
+                departure_gate = str(destination_data[0]['gate'])
+                self.gotFlightData = False
+                self.gotDestination = False
+                self.onDepartureGate(departure_gate)]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="flight_data" type="3" type_size="1" nature="1" inner="0" tooltip="The flight data as a JSON string." id="2" />
+        <Input name="destination" type="3" type_size="1" nature="1" inner="0" tooltip="The destination" id="3" />
+        <Output name="onDepartureGate" type="3" type_size="1" nature="2" inner="0" tooltip="The departure gate for the given destination." id="4" />
+        <Output name="not_found" type="3" type_size="1" nature="2" inner="0" tooltip="" id="5" />
+    </Box>
+</ChoregrapheBox>

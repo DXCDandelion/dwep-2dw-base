@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="2" localization="8" tooltip="Get a list of the available destinations." x="563" y="40">
+        <bitmap>media/images/box/box-diagram.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  flight object list (json)
+# OUT: destination list
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_onStart(self, flight_json):
+        import json
+        # code here to get list of destinations from flight data json
+        flight_data = json.loads(flight_json)
+        destinations = [x['destination'] for x in flight_data]
+        self.logger.warn(destinations)
+        self.onDestinations(json.dumps(destinations))
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="onStart" type="3" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+        <Output name="onDestinations" type="3" type_size="1" nature="2" inner="0" tooltip="The destination data in a JSON string." id="3" />
+    </Box>
+</ChoregrapheBox>

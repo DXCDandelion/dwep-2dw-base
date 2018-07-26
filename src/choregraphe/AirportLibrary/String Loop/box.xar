@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="1" localization="-1" tooltip='Given a list of strings this will output one string of the list at a time.&#x0A;&#x0A;You need to use the &quot;next&quot; input to output the next value in the list.' x="507" y="286">
+        <bitmap>media/images/box/loop.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self, False)
+        self.index = 0
+        self.list = []
+
+    def onLoad(self):
+        self.index = 0
+        self.list = []
+
+    def onUnload(self):
+        #~ puts code for box cleanup here
+        pass
+
+    def onInput_list(self, the_list):
+        self.list = the_list
+        self.next_string(self.list[0])
+        self.index += 1
+
+    def onInput_next(self):
+        if self.index < len(self.list):
+
+            self.next_string(self.list[self.index])
+            self.index += 1
+        else:
+            self.finished()]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when Diagram is loaded." id="1" />
+        <Input name="list" type="0" type_size="1" nature="1" inner="0" tooltip="The list of strings" id="2" />
+        <Input name="next" type="1" type_size="1" nature="1" inner="0" tooltip="Trigger to get the next value in the list." id="3" />
+        <Output name="next_string" type="3" type_size="1" nature="2" inner="0" tooltip="The next string in the list." id="4" />
+        <Output name="finished" type="1" type_size="1" nature="2" inner="0" tooltip="Stimulated when the loop is over." id="5" />
+    </Box>
+</ChoregrapheBox>

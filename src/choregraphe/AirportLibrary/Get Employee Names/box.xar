@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="4" localization="8" tooltip="Get a list of all the employee names. List is a semi-colon separated string.&#x0A;&#x0A;It could be used to feed into a speech reco box." x="381" y="122">
+        <bitmap>media/images/box/box-diagram.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  flight object list (json)
+# OUT: destination list
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_employee_data(self, employee_json):
+        import json
+        # code here to get list of destinations from flight data json
+        employee_data = json.loads(employee_json)
+        names = [x['name'] for x in employee_data]
+        self.employee_names(json.dumps(';'.join(names)))
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="employee_data" type="3" type_size="1" nature="1" inner="0" tooltip="The employee data as a JSON string." id="2" />
+        <Output name="employee_names" type="3" type_size="1" nature="2" inner="0" tooltip="The employee names as a semi-colon separated string." id="3" />
+    </Box>
+</ChoregrapheBox>

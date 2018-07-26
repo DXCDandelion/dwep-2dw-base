@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="9" localization="8" tooltip="Gets the next 3 train departures from the airport." x="419" y="117">
+        <bitmap>media/images/box/internet/internet.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        import os
+        import sys
+        behaviorPath = self.session().service("ALFrameManager").getBehaviorPath(self.behaviorId)
+        self.path = os.path.join(behaviorPath, '../lib')
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+
+    def onUnload(self):
+        #put clean-up code here
+        if self.path in sys.path:
+            sys.path.remove(self.path)
+
+    def onInput_onStart(self):
+#        import os
+#        os.environ['no_proxy'] = '127.0.0.1,localhost'import requests
+        import requests
+        import json
+        from datetime import datetime
+        now = datetime.now()
+        now_date = now.strftime('%Y-%m-%d')
+        now_time = now.strftime('%H:%M')
+        uri = 'http://transportapi.com/v3/uk/train/station/HXX/%s/%s/timetable.json?app_id=40ab5776&app_key=8c555011a12b0d9c77ac1b17658b8421&destination=PAD' % (now_date, now_time)
+        r = requests.get(uri)
+       # check result
+        self.logger.info(r.status_code)
+        if r.status_code == requests.codes.ok:
+            train_data = json.loads(r.text)
+            self.next_train(str(train_data['departures']['all'][0]['aimed_departure_time']))
+            self.second_train(str(train_data['departures']['all'][1]['aimed_departure_time']))
+            self.third_train(str(train_data['departures']['all'][2]['aimed_departure_time']))
+        else:
+            self.onError('Train timetable API call returned: %s' % r.status_code)]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+        <Output name="next_train" type="3" type_size="1" nature="2" inner="0" tooltip="The scheduled departure time of the next train from the current time." id="3" />
+        <Output name="second_train" type="3" type_size="1" nature="2" inner="0" tooltip="The scheduled departure time of the second train from the current time." id="4" />
+        <Output name="third_train" type="3" type_size="1" nature="2" inner="0" tooltip="The scheduled departure time of the third train from the current time." id="5" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="6" />
+    </Box>
+</ChoregrapheBox>

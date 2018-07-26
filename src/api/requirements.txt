@@ -1,0 +1,7 @@
+Flask==0.12.2
+Flask-Cors==3.0.3
+requests==2.18.4
+tinydb==3.9.0.post1
+sendgrid==5.3.0
+numpy==1.14.4
+Pillow==5.1.0

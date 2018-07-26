@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="12" localization="8" tooltip="Get a list of direction descriptions for the given airport location." x="595" y="33">
+        <bitmap>media/images/box/movement/turn_around.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  location_id
+# OUT: direction description
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.location_data = ''
+        self.location_name = ''
+        self.gotLocationData = False
+        self.gotLocationName = False
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_location_data(self, location_json):
+        import json
+        self.location_data = json.loads(location_json)
+        self.gotLocationData = True
+        self.get_directions()
+
+    def onInput_location_name(self, location_name):
+        self.location_name = location_name
+        self.gotLocationName = True
+        self.get_directions()
+
+    def get_directions(self):
+        if self.gotLocationData and self.gotLocationName:
+            location_data = [x for x in self.location_data if x['name'] == self.location_name]
+            if not location_data:
+                self.not_found('%s could not be found' % self.location_name)
+            else:
+                directions = str(location_data[0]['directions'])
+                self.gotLocationData = False
+                self.gotLocationName = False
+                self.onDirections(directions)]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="location_data" type="3" type_size="1" nature="1" inner="0" tooltip="The locations data as a JSON string" id="2" />
+        <Input name="location_name" type="3" type_size="1" nature="1" inner="0" tooltip="The name os the location to get directions&#x0A;*CASE SENSITIVE*" id="3" />
+        <Output name="onDirections" type="0" type_size="1" nature="2" inner="0" tooltip="A list of direction instructions" id="4" />
+        <Output name="not_found" type="3" type_size="1" nature="2" inner="0" tooltip="" id="5" />
+    </Box>
+</ChoregrapheBox>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="5" localization="8" tooltip="Gets the user data from the database for the given user ID" x="485" y="207">
+        <bitmap>media/images/box/interaction/backlit.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  user_id
+# OUT: user object
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        import os
+        import sys
+        behaviorPath = self.session().service("ALFrameManager").getBehaviorPath(self.behaviorId)
+        self.path = os.path.join(behaviorPath, '../lib')
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+
+    def onUnload(self):
+        #put clean-up code here
+        if self.path in sys.path:
+            sys.path.remove(self.path)
+
+    def onInput_onUserId(self, user_id):
+        import requests
+#        import os
+#        os.environ['no_proxy'] = '127.0.0.1,localhost'
+        r = requests.get('%s/user/%d' % (self.getParameter('Airport API Base URI'), user_id))
+        self.logger.info(r.status_code)
+        if r.status_code == requests.codes.ok:
+            self.onUser(str(r.text))
+        elif r.status_code == 400:
+            self.onError('User with ID %d could not be found.' % user_id)
+        else:
+            self.onError('Error retrieving user data for user %d, response code = %d' % (user_id, r.status_code))
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="onUserId" type="2" type_size="1" nature="2" inner="0" tooltip="The user ID that identifies the customer." id="2" />
+        <Output name="onUser" type="3" type_size="1" nature="2" inner="0" tooltip="The user data as a JSON string." id="3" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="User could not be found." id="4" />
+        <Parameter name="Airport API Base URI" inherits_from_parent="0" content_type="3" value="http://127.0.0.1:5000" default_value="http://127.0.0.1:5000" custom_choice="0" tooltip="The base URI for the Airport API" id="5" />
+    </Box>
+</ChoregrapheBox>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="11" localization="8" tooltip="Get the locations around the airport from the database" x="386" y="18">
+        <bitmap>media/images/box/box-diagram.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  NONE
+# OUT: location object list
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        import os
+        import sys
+        behaviorPath = self.session().service("ALFrameManager").getBehaviorPath(self.behaviorId)
+        self.path = os.path.join(behaviorPath, '../lib')
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+
+    def onUnload(self):
+        #put clean-up code here
+        if self.path in sys.path:
+            sys.path.remove(self.path)
+
+    def onInput_onStart(self):
+        from tinydb import TinyDB
+        import json
+        db = TinyDB(self.getParameter('Database Path'))
+        locations = db.table('locations')
+        locations_data = locations.all()
+        self.logger.info(locations_data)
+        if locations_data:
+          self.onLocations(json.dumps(locations_data)) #activate the output of the box
+        else:
+          self.onError('Error retrieving locations data')
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+        <Output name="onLocations" type="3" type_size="1" nature="2" inner="0" tooltip="" id="3" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="4" />
+        <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="5" />
+    </Box>
+</ChoregrapheBox>

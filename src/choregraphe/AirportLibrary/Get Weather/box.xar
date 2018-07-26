@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="8" localization="8" tooltip="Gets the current temperature, humidity, wind speed and wind direction for the given destination.&#x0A;&#x0A;Uses https://openweathermap.org/current" x="434" y="289">
+        <bitmap>media/images/box/internet/weather.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        import os
+        import sys
+        behaviorPath = self.session().service("ALFrameManager").getBehaviorPath(self.behaviorId)
+        self.path = os.path.join(behaviorPath, '../lib')
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+
+    def onUnload(self):
+        #put clean-up code here
+        if self.path in sys.path:
+            sys.path.remove(self.path)
+
+    def onInput_destination(self, destination):
+#        import os
+#        os.environ['no_proxy'] = '127.0.0.1,localhost'import requests
+        import requests
+        import json
+        current_weather_uri = 'http://api.openweathermap.org/data/2.5/weather?q=%s,au&appid=465a7c9eca36bddce8084bf1eef81d69&units=metric' %  destination.strip()
+        current_weather_r = requests.get(current_weather_uri)
+       # check result
+        self.logger.info(current_weather_r.status_code)
+        if current_weather_r.status_code == requests.codes.ok:
+            current_weather_data = json.loads(current_weather_r.text)
+            self.logger.info(current_weather_data)
+            self.current_temp(current_weather_data['main']['temp'])
+            self.humidity(current_weather_data['main']['humidity'])
+            self.wind_speed(current_weather_data['wind']['speed'])
+            self.wind_direction(current_weather_data['wind']['deg'])
+        else:
+            self.onError('Current weather API call returned: %s' % current_weather_r.status_code)]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="destination" type="3" type_size="1" nature="1" inner="0" tooltip="The destination to get the weather for" id="2" />
+        <Output name="current_temp" type="2" type_size="1" nature="2" inner="0" tooltip="The current temperature in degrees celsius for the given destination." id="3" />
+        <Output name="humidity" type="2" type_size="1" nature="2" inner="0" tooltip="The current humidity in % for the given destination." id="4" />
+        <Output name="wind_speed" type="2" type_size="1" nature="2" inner="0" tooltip="The current wind speed in metres/sec for the given destination." id="5" />
+        <Output name="wind_direction" type="2" type_size="1" nature="2" inner="0" tooltip="The current wind direction in degrees (meteorological) for the given destination." id="6" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="7" />
+    </Box>
+</ChoregrapheBox>

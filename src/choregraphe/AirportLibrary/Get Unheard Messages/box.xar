@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="2" localization="8" tooltip="Gets the list of the unheard recorded messages for the given employee." x="367" y="194">
+        <bitmap>media/images/box/interaction/rec_sound.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  NONE
+# OUT: location object list
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        import os
+        import sys
+        behaviorPath = self.session().service("ALFrameManager").getBehaviorPath(self.behaviorId)
+        self.path = os.path.join(behaviorPath, '../lib')
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+
+    def onUnload(self):
+        #put clean-up code here
+        if self.path in sys.path:
+            sys.path.remove(self.path)
+
+    def onInput_employee_name(self, employee_name):
+        from tinydb import TinyDB, Query
+        import json
+        db = TinyDB(self.getParameter('Database Path'))
+        employees = db.table('employees')
+        Employee = Query()
+        employee_data = employees.get(Employee.name == employee_name)
+        unheard_messages = [str(x['file_path']) for x in employee_data['messages'] if not x['listened']]
+        self.logger.info(unheard_messages)
+        if employee_data:
+            self.messages(unheard_messages)
+        else:
+            self.onError('Employee with name %s was not found' % self.employee_name)
+
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="employee_name" type="3" type_size="1" nature="1" inner="0" tooltip="" id="2" />
+        <Output name="messages" type="0" type_size="1" nature="2" inner="0" tooltip="List of the file paths of their recorded messages." id="3" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="4" />
+        <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="5" />
+    </Box>
+</ChoregrapheBox>

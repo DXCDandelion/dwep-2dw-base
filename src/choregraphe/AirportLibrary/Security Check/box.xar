@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="8" localization="8" tooltip="Given the user data it determines what level of security risk the given user is." x="919" y="61">
+        <bitmap>media/images/box/tracker/tracker.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[#IN:  user_data
+#OUT: GREEN, YELLOW, RED
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_onUser(self, user_json):
+        import json
+        user_data = json.loads(user_json)
+        self.logger.warn(user_data)
+        if user_data['security_flag'] == 'GREEN':
+            self.GREEN()
+        elif user_data['security_flag'] == 'YELLOW':
+            self.YELLOW()
+        elif user_data['security_flag'] == 'RED':
+            self.RED()
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="onUser" type="3" type_size="1" nature="1" inner="0" tooltip="User data as a JSON string." id="2" />
+        <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="3" />
+        <Output name="RED" type="1" type_size="1" nature="2" inner="0" tooltip="User flagged as RED security risk" id="4" />
+        <Output name="YELLOW" type="1" type_size="1" nature="2" inner="0" tooltip="User flagged as YELLOW security risk" id="5" />
+        <Output name="GREEN" type="1" type_size="1" nature="2" inner="0" tooltip="User flagged as GREEN security risk" id="6" />
+    </Box>
+</ChoregrapheBox>

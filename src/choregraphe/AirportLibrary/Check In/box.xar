@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="8" localization="8" tooltip="Checks in the user for the given ticket." x="736" y="267">
+        <bitmap>media/images/box/shortcut.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.ticket_data = ''
+        self.boardingPassNaoMarkId = -1
+        self.gotTicketData = False
+        self.gotBoardingPassNaoMarkId = False
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_ticket_data(self, ticket_json):
+        import json
+        self.ticket_data = json.loads(ticket_json)
+        self.gotTicketData = True
+        self.check_in()
+
+    def onInput_boardingPassNaoMarkId(self, boardingPassNaoMarkId):
+        self.boardingPassNaoMarkId = boardingPassNaoMarkId
+        self.gotBoardingPassNaoMarkId = True
+        self.check_in()
+
+    def check_in(self):
+        from tinydb import TinyDB, Query
+        import json
+        db = TinyDB(self.getParameter('Database Path'))
+        users = db.table('users')
+        flights = db.table('flights')
+        boarding_passes = db.table('boarding_passes')
+        if self.gotTicketData and self.gotBoardingPassNaoMarkId:
+            try:
+                Flight = Query()
+                flight_data = flights.get(doc_id=self.ticket_data['flight_id'])
+                self.check_cutoff(str(flight_data['checkin_cutoff']))
+
+                User = Query()
+                user = users.get(User.nao_mark_id == self.ticket_data['user_id'])
+                self.check_security(user['security_flag'])
+
+                self.is_checked_in(self.ticket_data['user_id'], flight_data['passengers'])
+
+                flight_data['passengers'].append(self.ticket_data['user_id'])
+                flights.update(flight_data, Flight.destination == flight_data['destination'])
+                self.gotTicketData = False
+                self.gotBoardingPassNaoMarkId = False
+                boarding_pass_data = {
+                    'user_id': int(user['nao_mark_id']),
+                    'flight_id': flight_data.doc_id,
+                    'nao_mark_id': self.boardingPassNaoMarkId,
+                    'destination': flight_data['destination'],
+                    'departure': flight_data['departure'],
+                    'gate': flight_data['gate']
+                }
+                boarding_pass_id = boarding_passes.insert(boarding_pass_data)
+                self.onCheckin(json.dumps(boarding_pass_data))
+            except Exception as e:
+                self.deallocateNaoMark(db, self.boardingPassNaoMarkId)
+                self.onError('Check in failed. %s' % e)
+
+    def is_checked_in(self, user_id, flight_passengers):
+        if user_id in flight_passengers:
+            self.checked_in()
+            raise(Exception('User already checked in'))
+
+    def check_cutoff(self, cutoff_time):
+        from datetime import datetime
+        now = datetime.now()
+        now_s = now.strftime('%H:%M')
+        if now_s > cutoff_time:
+            self.missed_cutoff()
+            raise(Exception('Check in after cutoff time of %s' % cutoff_time))
+
+    def check_security(self, security_flag):
+        if security_flag in ['YELLOW','RED']:
+            self.security_risk(str(security_flag))
+            raise(Exception('Security check failed! [%s]' % security_flag))
+
+    def deallocateNaoMark(self, db, naoMarkId):
+        from tinydb import Query
+        nao_marks = db.table('nao_marks')
+        NaoMark = Query()
+        nao_mark = nao_marks.get(NaoMark.id == naoMarkId)
+        nao_mark['allocated'] = False
+        nao_marks.update(nao_mark, NaoMark.id == nao_mark['id'])]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="ticket_data" type="3" type_size="1" nature="1" inner="0" tooltip="The ticket data as a JSON string." id="2" />
+        <Input name="boardingPassNaoMarkId" type="2" type_size="1" nature="1" inner="0" tooltip="The ID of the next available nao mark for tickets.&#x0A;&#x0A;* USE Get Next Nao Mark box *" id="3" />
+        <Output name="onCheckin" type="3" type_size="1" nature="2" inner="0" tooltip="The boarding pass data as a JSON string. Use it to create a boarding pass." id="4" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="5" />
+        <Output name="checked_in" type="1" type_size="1" nature="2" inner="0" tooltip="User already checked in" id="6" />
+        <Output name="missed_cutoff" type="1" type_size="1" nature="2" inner="0" tooltip="User missed checkin cutoff time" id="7" />
+        <Output name="security_risk" type="3" type_size="1" nature="2" inner="0" tooltip="User failed security check. Security level is output." id="8" />
+        <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="9" />
+    </Box>
+</ChoregrapheBox>

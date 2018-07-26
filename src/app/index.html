@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css" crossorigin="anonymous">
+
+    <title>DXC Airlines</title>
+  </head>
+  <body>
+    <div class="container">
+      <img src="img/Dandelion_Icon_white.png" alt="logo" width="200px">
+      <h1>DXC Airlines Customer Registration</h1>
+      <h3>Please register your details below to enable ticket purchases.</h3>
+      <div id="successAlert" class="alert alert-success collapse alert-dismissible" role="alert">
+        Success! You can now purchase tickets from our robots.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="errorAlert" class="alert alert-danger collapse alert-dismissible" role="alert">
+        Uh oh!! Something when wrong
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="regForm" role="form">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" class="form-control" id="firstName" placeholder="First Name" required>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" class="form-control" id="lastName" placeholder="Last Name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" required>
+        </div>
+        <div class="form-group">
+          <label for="ccnum">Credit Card</label>
+          <input type="text" class="form-control" id="ccnum" required>
+          <small id="ccHelp" class="form-text text-muted">DEMO ONLY. DO NOT USE REAL CREDIT CARD.</small>
+          <small>Card Type: <strong id="ccnum-type">invalid</strong></small>
+        </div>
+        <div class="form-group">
+          <label for="expiry">Expiry</label>
+          <input type="text" class="form-control" id="expiry" required>
+        </div>
+        <div class="form-group">
+          <label for="cvc">CVC</label>
+          <input type="text" class="form-control" id="cvc" required>
+        </div>
+        <button type="reset"  class="btn btn-danger">Clear</button>
+        <button type="button" id="submit" onclick="register()" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="js/payform.min.js" crossorigin="anonymous"></script>
+    <script src="js/cc.js" crossorigin="anonymous"></script>
+    <script src="js/app.js" crossorigin="anonymous"></script>
+  </body>
+</html>
