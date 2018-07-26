@@ -4,10 +4,10 @@
 
 ## To use the Airport Library
 
-### Pre-requisites
+#### Pre-requisites
 - `pip` (Python Package Manager)
 
-Create the following directory structure:
+#### Create the following directory structure:
 - `/home/nao/airport/db`
 - Open a console in the `choregraphe` directory
 - `setup.cmd`
