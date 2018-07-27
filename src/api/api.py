@@ -17,7 +17,7 @@ USER_ID_FILE_MASK = 'user_ids/%(id)d_user_id.png'
 TICKET_FILE_MASK = 'tickets/%(id)d_ticket.png'
 BOARDING_PASS_FILE_MASK = 'boarding_passes/%(id)d_boarding_pass.png'
 
-sg = sendgrid.SendGridAPIClient(apikey='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')
+sg = sendgrid.SendGridAPIClient(apikey='KEY GOES HERE')
 FROM_EMAIL = Email('no-reply@dxcair.com')
 
 db = TinyDB('db/database.json')
