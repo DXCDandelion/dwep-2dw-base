@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ChoregrapheBox xar_version="3">
-    <Box name="root" id="1" localization="8" tooltip="Generates a ticket which results in an image and saves it in the tickets file location. This can be used to attach in an email." x="420" y="97">
+    <Box name="root" id="1" localization="8" tooltip="Generates a ticket which results in an image and saves it in the tickets file location. This can be used to attach in an email." x="386" y="91">
         <bitmap>media/images/box/box-script.png</bitmap>
         <script language="4">
             <content>
@@ -26,8 +26,8 @@
         from tinydb import TinyDB, Query
         import requests
         import json
-        import os
-        os.environ['no_proxy'] = '127.0.0.1,localhost'
+#        import os
+#        os.environ['no_proxy'] = '127.0.0.1,localhost'
         ticket_data = json.loads(ticket_json)
 
         if 'ticket_file' in ticket_data:
@@ -48,7 +48,7 @@
             'destination': ticket_data['destination'],
             'price': '$%s' % ticket_data['price']
         }
-        r = requests.post('http://localhost:5000/create_ticket', json=new_ticket_data)
+        r = requests.post('%s/create_ticket' % self.getParameter('Airport API Base URI'), json=new_ticket_data)
         if r.status_code == requests.codes.ok:
             new_ticket_data = json.loads(r.text)
             ticket_data['ticket_file'] = new_ticket_data['ticket_file']
@@ -63,5 +63,6 @@
         <Output name="ticket_data_out" type="3" type_size="1" nature="2" inner="0" tooltip="The ticket data as a JSON string." id="3" />
         <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="4" />
         <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="5" />
+        <Parameter name="Airport API Base URI" inherits_from_parent="0" content_type="3" value="http://coreydxc.pythonanywhere.com" default_value="http://coreydxc.pythonanywhere.com" custom_choice="0" tooltip="" id="6" />
     </Box>
 </ChoregrapheBox>

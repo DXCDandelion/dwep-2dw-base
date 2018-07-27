@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ChoregrapheBox xar_version="3">
-    <Box name="root" id="8" localization="8" tooltip="Generates a boarding pass which results in an image and saves it in the boarding pass file location. This can be used to attach in an email." x="391" y="319">
+    <Box name="root" id="2" localization="8" tooltip="Generates a boarding pass which results in an image and saves it in the boarding pass file location. This can be used to attach in an email." x="509" y="202">
         <bitmap>media/images/box/box-script.png</bitmap>
         <script language="4">
             <content>
@@ -26,8 +26,8 @@
         from tinydb import TinyDB, Query
         import requests
         import json
-        import os
-        os.environ['no_proxy'] = '127.0.0.1,localhost'
+#        import os
+#        os.environ['no_proxy'] = '127.0.0.1,localhost'
         boarding_pass_data = json.loads(boarding_pass_json)
 
         if 'boarding_pass_file' in boarding_pass_data:
@@ -52,7 +52,7 @@
             'terminal': 'T1',
             'gate': boarding_pass_data['gate']
         }
-        r = requests.post('http://localhost:5000/create_boarding_pass', json=new_boarding_pass_data)
+        r = requests.post('%s/create_boarding_pass' % self.getParameter('Airport API Base URI'), json=new_boarding_pass_data)
         if r.status_code == requests.codes.ok:
             new_boarding_pass_data = json.loads(r.text)
             boarding_pass_data['boarding_pass_file'] = new_boarding_pass_data['boarding_pass_file']
@@ -82,5 +82,6 @@
         <Output name="boarding_pass_data_out" type="3" type_size="1" nature="2" inner="0" tooltip="The boarding pass data as a JSON string." id="3" />
         <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="4" />
         <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="5" />
+        <Parameter name="Airport API Base URI" inherits_from_parent="0" content_type="3" value="http://coreydxc.pythonanywhere.com" default_value="http://coreydxc.pythonanywhere.com" custom_choice="0" tooltip="" id="6" />
     </Box>
 </ChoregrapheBox>

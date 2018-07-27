@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ChoregrapheBox xar_version="3">
-    <Box name="root" id="5" localization="8" tooltip="Uses an API service to send an email of the created ticket." x="592" y="120">
+    <Box name="root" id="5" localization="8" tooltip="Uses an API service to send an email of the created ticket." x="630" y="29">
         <bitmap>media/images/box/internet/email.png</bitmap>
         <script language="4">
             <content>
@@ -29,7 +29,6 @@
         import os
         os.environ['no_proxy'] = '127.0.0.1,localhost'
         ticket_data = json.loads(ticket_json)
-
         db = TinyDB(self.getParameter('Database Path'))
         users = db.table('users')
         User = Query()
@@ -42,7 +41,8 @@
             'destination': ticket_data['destination'],
             'ticket_file': ticket_data['ticket_file']
         }
-        r = requests.post('http://localhost:5000/email_ticket', json=email_ticket_data)
+#        r = requests.post('http://localhost:5000/email_ticket', json=email_ticket_data)
+        r = requests.post('%s/email_ticket' % self.getParameter('Airport API Base URI'), json=email_ticket_data)
         if r.status_code == 202:
             self.OK()
         else:
@@ -54,5 +54,6 @@
         <Output name="OK" type="1" type_size="1" nature="2" inner="0" tooltip="The email has been sent." id="3" />
         <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="4" />
         <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="5" />
+        <Parameter name="Airport API Base URI" inherits_from_parent="0" content_type="3" value="http://coreydxc.pythonanywhere.com" default_value="http://coreydxc.pythonanywhere.com" custom_choice="0" tooltip="" id="6" />
     </Box>
 </ChoregrapheBox>

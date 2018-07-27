@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ChoregrapheBox xar_version="3">
-    <Box name="root" id="5" localization="8" tooltip="Gets the user data from the database for the given user ID" x="485" y="207">
+    <Box name="root" id="6" localization="8" tooltip="Gets the user data from the database for the given user ID" x="113" y="163">
         <bitmap>media/images/box/interaction/backlit.png</bitmap>
         <script language="4">
             <content>
@@ -47,6 +47,6 @@ class MyClass(GeneratedClass):
         <Input name="onUserId" type="2" type_size="1" nature="2" inner="0" tooltip="The user ID that identifies the customer." id="2" />
         <Output name="onUser" type="3" type_size="1" nature="2" inner="0" tooltip="The user data as a JSON string." id="3" />
         <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="User could not be found." id="4" />
-        <Parameter name="Airport API Base URI" inherits_from_parent="0" content_type="3" value="http://127.0.0.1:5000" default_value="http://127.0.0.1:5000" custom_choice="0" tooltip="The base URI for the Airport API" id="5" />
+        <Parameter name="Airport API Base URI" inherits_from_parent="0" content_type="3" value="http://coreydxc.pythonanywhere.com" default_value="http://coreydxc.pythonanywhere.com" custom_choice="0" tooltip="The base URI for the Airport API" id="5" />
     </Box>
 </ChoregrapheBox>

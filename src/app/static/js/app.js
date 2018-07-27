@@ -56,7 +56,7 @@ function register() {
   }
 
   $.ajax({
-    url: 'http://127.0.0.1:5000/user',
+    url: 'http://coreydxc.pythonanywhere.com/user',
     dataType: 'json',
     type: 'post',
     contentType: 'application/json',

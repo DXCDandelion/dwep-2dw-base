@@ -1,26 +1,24 @@
+
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import numpy as np
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import sendgrid
 import base64
-import os
 from sendgrid.helpers.mail import *
 from tinydb import TinyDB, Query
 
 app = Flask(__name__)
-CORS(app)
 
-USER_ID_FILE_MASK = 'user_ids/%(id)d_user_id.png'
-TICKET_FILE_MASK = 'tickets/%(id)d_ticket.png'
-BOARDING_PASS_FILE_MASK = 'boarding_passes/%(id)d_boarding_pass.png'
+USER_ID_FILE_MASK = '/home/coreyDXC/airport/user_ids/%(id)d_user_id.png'
+TICKET_FILE_MASK = '/home/coreyDXC/airport/tickets/%(id)d_ticket.png'
+BOARDING_PASS_FILE_MASK = '/home/coreyDXC/airport/boarding_passes/%(id)d_boarding_pass.png'
 
-sg = sendgrid.SendGridAPIClient(apikey='KEY GOES HERE')
+sg = sendgrid.SendGridAPIClient(apikey='API KEY HERE')
 FROM_EMAIL = Email('no-reply@dxcair.com')
 
-db = TinyDB('db/database.json')
+db = TinyDB('/home/coreyDXC/airport/db/database.json')
 users = db.table('users')
 nao_marks = db.table('nao_marks')
 
@@ -30,7 +28,6 @@ def hello_world():
 
 @app.route('/user', methods = ['POST'])
 def new_user():
-  print request.get_json()
   user_data = request.get_json()
   NaoMark = Query()
   unalloc_nao_marks = nao_marks.search((NaoMark.allocated == False) & (NaoMark.type == 'user'))
@@ -54,7 +51,7 @@ def new_user():
 def get_user(id):
   User = Query()
   user_data = users.get(User.nao_mark_id == int(id))
-  
+
   if user_data is None:
     resp = jsonify({'error': 'User not found.'})
     resp.status_code = 400
@@ -64,22 +61,20 @@ def get_user(id):
   return resp
 
 def create_user_id(user_data):
-  print user_data
-  user_hdr_img = Image.open('image/user_hdr.png', 'r').convert('RGBA')
+  user_hdr_img = Image.open('/home/coreyDXC/airport/image/user_hdr.png', 'r').convert('RGBA')
 
   size = width, height = user_hdr_img.size
   draw = ImageDraw.Draw(user_hdr_img,'RGBA')
-  font = ImageFont.truetype('image/FiraSans-Bold.ttf', 36)
+  font = ImageFont.truetype('/home/coreyDXC/airport/image/FiraSans-Bold.ttf', 36)
 
   # Passenger
   text = '%s %s' % (user_data['first_name'], user_data['last_name'])
   w, h = draw.textsize(text, font=font)
   draw.text(((width-w)/2,(height-h)/2), text, (255, 255, 255, 255),font=font)
-  imgs    = [user_hdr_img, Image.open('nao_mark_files/%d.png' % user_data['nao_mark_id'])]
+  imgs    = [user_hdr_img, Image.open('/home/coreyDXC/airport/nao_mark_files/%d.png' % user_data['nao_mark_id'])]
   # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
 
   min_shape = sorted( [(sum(i.size), i.size ) for i in imgs])[0][1]
-  print min_shape
   new_im = Image.new('RGB', (min_shape[0], min_shape[1]*2))
   y_offset = 0
   for i in imgs:
@@ -92,12 +87,11 @@ def create_user_id(user_data):
 @app.route('/create_ticket', methods = ['POST'])
 def create_ticket():
     ticket_data =  request.get_json()
-    print ticket_data
-    ticket_hdr_img = Image.open('image/ticket_hdr.png', 'r').convert('RGBA')
+    ticket_hdr_img = Image.open('/home/coreyDXC/airport/image/ticket_hdr.png', 'r').convert('RGBA')
 
     size = width, height = ticket_hdr_img.size
     draw = ImageDraw.Draw(ticket_hdr_img,'RGBA')
-    font = ImageFont.truetype('image/FiraSans-Bold.ttf', 16)
+    font = ImageFont.truetype('/home/coreyDXC/airport/image/FiraSans-Bold.ttf', 16)
 
     # Passenger
     draw.text((150,175), ticket_data['name'], (0, 155, 157, 255),font=font)
@@ -108,7 +102,7 @@ def create_ticket():
     # ticket_hdr_img.save('sample-out.png')
 
     # list_im = [ticket_hdr_img, '125.png']
-    imgs    = [ticket_hdr_img, Image.open('nao_mark_files/%d.png' % ticket_data['nao_mark_id'])]
+    imgs    = [ticket_hdr_img, Image.open('/home/coreyDXC/airport/nao_mark_files/%d.png' % ticket_data['nao_mark_id'])]
     # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
 
     min_shape = sorted( [(sum(i.size), i.size ) for i in imgs])[0][1]
@@ -127,12 +121,11 @@ def create_ticket():
 @app.route('/create_boarding_pass', methods = ['POST'])
 def create_boarding_pass():
     boarding_pass_data =  request.get_json()
-    print boarding_pass_data
-    boarding_pass_img = Image.open('image/boarding-pass_hdr.png', 'r').convert('RGBA')
+    boarding_pass_img = Image.open('/home/coreyDXC/airport/image/boarding-pass_hdr.png', 'r').convert('RGBA')
 
     size = width, height = boarding_pass_img.size
     draw = ImageDraw.Draw(boarding_pass_img,'RGBA')
-    font = ImageFont.truetype('image/FiraSans-Bold.ttf', 16)
+    font = ImageFont.truetype('/home/coreyDXC/airport/image/FiraSans-Bold.ttf', 16)
 
     # Passenger
     draw.text((145,145), boarding_pass_data['name'], (0, 155, 157, 255),font=font)
@@ -149,7 +142,7 @@ def create_boarding_pass():
     # Gate
     draw.text((250,375), boarding_pass_data['gate'], (0, 155, 157, 255),font=font)
 
-    imgs    = [boarding_pass_img, Image.open('nao_mark_files/%d.png' % boarding_pass_data['nao_mark_id'])]
+    imgs    = [boarding_pass_img, Image.open('/home/coreyDXC/airport/nao_mark_files/%d.png' % boarding_pass_data['nao_mark_id'])]
     # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
     min_shape = sorted( [(np.sum(i.size), i.size ) for i in imgs])[0][1]
     imgs_comb = np.vstack( (np.asarray( i.resize(min_shape) ) for i in imgs ) )
@@ -162,7 +155,6 @@ def create_boarding_pass():
     return resp
 
 def email_user_id(user_data, new_user_id):
-    print user_data
     to_email = Email(user_data['email'])
     subject = 'Your DXC Airlines Identifier'
     content = Content('text/html', '<h1>Thank you for registering!</h1><br>Your unique DXC Airlines identifier is attached.')
@@ -185,7 +177,6 @@ def email_user_id(user_data, new_user_id):
 @app.route('/email_ticket', methods = ['POST'])
 def email_ticket():
     ticket_data =  request.get_json()
-    print ticket_data
     to_email = Email(ticket_data['email'])
     subject = 'Your DXC Airlines Ticket to %s' % ticket_data['destination']
     content = Content('text/html', '<h1>Thank you for your purchase %s!</h1><br><h3>Your ticket to your flight to %s is attached.</h3>' % (ticket_data['name'], ticket_data['destination']))
@@ -207,7 +198,6 @@ def email_ticket():
 @app.route('/email_boarding_pass', methods = ['POST'])
 def email_boarding_pass():
     boarding_pass_data =  request.get_json()
-    print boarding_pass_data
     to_email = Email(boarding_pass_data['email'])
     subject = 'Your DXC Airlines Boarding Pass for %s' % boarding_pass_data['destination']
     content_text = '''
@@ -231,6 +221,3 @@ def email_boarding_pass():
     resp = jsonify({'body': response.body})
     resp.status_code = response.status_code
     return resp
-
-if __name__ == '__main__':
-    app.run(threaded=True)
