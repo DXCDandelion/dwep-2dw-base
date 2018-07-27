@@ -30,9 +30,8 @@ users = db.table('users')
 nao_marks = db.table('nao_marks')
 
 @app.route('/')
-def hello_world():
-    print request.host
-    return 'Hello, World!'
+def index():
+    return render_template('index.html')
 
 @app.route('/user', methods = ['POST'])
 def new_user():
