@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheBox xar_version="3">
+    <Box name="root" id="5" localization="8" tooltip="Saves details of the recorded message to the database." x="662" y="213">
+        <bitmap>media/images/box/interaction/rec_sound.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[# IN:  NONE
+# OUT: location object list
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.employee_name = ''
+        self.file_path = ''
+        self.gotName = False
+        self.gotFilePath = False
+
+    def onLoad(self):
+        self.memory = ALProxy("ALMemory")
+
+    def onUnload(self):
+        self.memory = None
+
+    def onInput_message_file_path(self, message_file_path):
+        self.file_path = message_file_path
+        self.gotFilePath = True
+        self.save()
+
+    def onInput_employee_name(self, employee_name):
+        self.employee_name = employee_name
+        self.gotName = True
+        self.save()
+
+    def save(self):
+
+        if self.gotFilePath and self.gotName:
+            result = self.memory.getData(self.employee_name)
+            result.append(self.file_path)
+            self.memory.insertData(self.employee_name, result)
+            employee_data = employees.get(Employee.name == self.employee_name)
+            self.gotFilePath = False
+            self.gotName = False
+            self.OK()
+
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="message_file_path" type="3" type_size="1" nature="1" inner="0" tooltip="" id="2" />
+        <Input name="employee_name" type="3" type_size="1" nature="1" inner="0" tooltip="" id="3" />
+        <Output name="OK" type="1" type_size="1" nature="2" inner="0" tooltip="The data has been saved." id="4" />
+        <Output name="onError" type="3" type_size="1" nature="2" inner="0" tooltip="" id="5" />
+        <Parameter name="Database Path" inherits_from_parent="0" content_type="3" value="/home/nao/airport/db/database.json" default_value="/home/nao/airport/db/database.json" custom_choice="0" tooltip="" id="6" />
+    </Box>
+</ChoregrapheBox>
